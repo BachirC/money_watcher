@@ -3,16 +3,20 @@ defmodule MoneyWatcher do
   Documentation for MoneyWatcher.
   """
 
-  @doc """
-  Hello world.
+  def init(default_options) do
+    IO.puts "Starting MoneyWatcher..."
+    default_options
+  end
 
-  ## Examples
+  def call(conn, _options) do
+    route(conn.method, conn.path_info, conn)
+  end
 
-      iex> MoneyWatcher.hello
-      :world
+  def route("POST", ["accounts", account_id, "debit"], conn) do
+    Plug.Conn.send_resp(conn, :ok, "")
+  end
 
-  """
-  def hello do
-    :world
+  def route(_, _, conn) do
+    Plug.Conn.send_resp(conn, :ok, "")
   end
 end

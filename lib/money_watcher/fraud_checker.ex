@@ -5,7 +5,7 @@ defmodule MoneyWatcher.FraudChecker do
 
   use GenServer, restart: :temporary
 
-  @fraudulent_debit_in_cts 10_000_000
+  @fraudulent_debit_in_cts 1_000_000
   @fraud_period_in_milli_seconds 1_200_000
   @log_filename Application.get_env(:money_watcher, :log_filename)
 

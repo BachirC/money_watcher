@@ -20,7 +20,7 @@ iex(2)>
 
 ```http
 POST localhost:4000/accounts/:account_id/debit?amount=<amount>
-account_id : IBAN format
+account_id : IBAN format (valid one DE89370400440532013000)
 amount : Strictly positive integer (€ cents)
 ```
 - When the debit for an account goes over 10k € (1M € cents) in the past 20min, a warning is logged in `money_watcher_log.txt`.

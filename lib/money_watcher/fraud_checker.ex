@@ -13,7 +13,7 @@ defmodule MoneyWatcher.FraudChecker do
   Start the agent for a given account
   """
 
-  def start_link(opts \\ [], initial_state) do
+  def start_link([], initial_state) do
     GenServer.start_link(__MODULE__, initial_state)
   end
 
@@ -34,7 +34,7 @@ defmodule MoneyWatcher.FraudChecker do
 
   # Server
 
-  def init({:name, account_id} = state) do
+  def init({:name, account_id}) do
     {:ok, {account_id, []}}
   end
 
@@ -42,7 +42,7 @@ defmodule MoneyWatcher.FraudChecker do
     {:reply, transactions, state}
   end
 
-  def handle_cast({:add, transaction}, {account_id, transactions} = state) do
+  def handle_cast({:add, transaction}, {account_id, transactions}) do
     transactions = [transaction | transactions]
     {:noreply, {account_id, transactions}}
   end
@@ -51,7 +51,7 @@ defmodule MoneyWatcher.FraudChecker do
   calculates the debit on the last 20 minutes and logs a warning into a file if the account
   is considered fraudulent
   """
-  def handle_cast(:check_debit, {account_id, transactions} = state) do
+  def handle_cast(:check_debit, {account_id, transactions}) do
     min_time = :os.system_time(:milli_seconds) - @fraud_period_in_milli_seconds
     # Keep only relevant transactions for fraud check
     transactions = transactions
@@ -65,7 +65,7 @@ defmodule MoneyWatcher.FraudChecker do
     {:noreply, {account_id, transactions}}
   end
 
-  def log_warning(total_debit, account_id, {_amount, timestamp} = transaction) do
+  def log_warning(total_debit, account_id, {_amount, timestamp}) do
     time = timestamp
     |> DateTime.from_unix!(:millisecond)
     |> DateTime.to_iso8601()

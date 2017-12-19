@@ -5,8 +5,8 @@ defmodule MoneyWatcher.FraudChecker do
 
   use GenServer, restart: :temporary
 
-  @fraudulent_debit_in_cts 1_000_000
-  @fraud_period_in_milli_seconds 1_200_000
+  @fraud_debit_in_cts Application.get_env(:money_watcher, :fraud_debit_in_euro_cents)
+  @fraud_period_in_milli_seconds Application.get_env(:money_watcher, :fraud_period_in_milli_seconds)
   @log_filename Application.get_env(:money_watcher, :log_filename)
 
   @doc """
@@ -62,7 +62,7 @@ defmodule MoneyWatcher.FraudChecker do
                   |> Enum.map_reduce(0, fn(transaction, acc) -> {transaction, elem(transaction, 0) + acc} end)
                   |> elem(1)
 
-    if total_debit >= @fraudulent_debit_in_cts, do: log_warning(total_debit, account_id, List.first(transactions))
+    if total_debit >= @fraud_debit_in_cts, do: log_warning(total_debit, account_id, List.first(transactions))
     {:noreply, {account_id, transactions}}
   end
 

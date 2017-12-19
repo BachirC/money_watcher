@@ -11,7 +11,10 @@ use Mix.Config
 # You can configure your application as:
 #
 config :money_watcher,
-  log_filename: "money_watcher_log.txt"
+  log_filename: "money_watcher_log.txt",
+  fraud_period_in_milli_seconds: 1_200_000,
+  fraud_debit_in_euro_cents: 1_000_000
+
 #
 # and access this configuration in your application as:
 #

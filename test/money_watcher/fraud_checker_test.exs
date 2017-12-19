@@ -3,7 +3,8 @@ defmodule MoneyWatcher.FraudCheckerTest do
 
   alias MoneyWatcher.FraudChecker
 
-  @fraud_period_in_milli_seconds 1_200_000
+  @fraud_debit Application.get_env(:money_watcher, :fraud_debit_in_euro_cents)
+  @fraud_period Application.get_env(:money_watcher, :fraud_period_in_milli_seconds)
   @log_filename Application.get_env(:money_watcher, :log_filename)
 
   setup do
@@ -22,13 +23,13 @@ defmodule MoneyWatcher.FraudCheckerTest do
   test "calculates debit on fraud period", %{fraud_checker: fraud_checker} do
     timestamp = :os.system_time(:milli_seconds)
 
-    FraudChecker.add(fraud_checker, {1_000_000, timestamp - @fraud_period_in_milli_seconds - 1_000})
-    FraudChecker.add(fraud_checker, {5_000_000, timestamp - @fraud_period_in_milli_seconds + 1_000})
-    FraudChecker.add(fraud_checker, {10_000_000, timestamp})
+    FraudChecker.add(fraud_checker, {@fraud_debit * 2, timestamp - @fraud_period - 1_000})
+    FraudChecker.add(fraud_checker, {@fraud_debit / 2, timestamp - @fraud_period + 1_000})
+    FraudChecker.add(fraud_checker, {@fraud_debit / 2, timestamp})
 
     expected = [
-      {5_000_000, timestamp - @fraud_period_in_milli_seconds + 1_000},
-      {10_000_000, timestamp}
+      {@fraud_debit / 2, timestamp - @fraud_period + 1_000},
+      {@fraud_debit / 2, timestamp}
     ]
 
     FraudChecker.check_debit(fraud_checker)

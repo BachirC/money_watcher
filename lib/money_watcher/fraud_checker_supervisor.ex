@@ -8,7 +8,7 @@ defmodule MoneyWatcher.FraudCheckerSupervisor do
 
   @name MoneyWatcher.FraudCheckerSupervisor
 
-  def start_link(opts) do
+  def start_link(_opts) do
     Supervisor.start_link(__MODULE__, :ok, name: @name)
   end
 

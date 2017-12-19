@@ -1,6 +1,6 @@
 defmodule MoneyWatcher do
   @moduledoc """
-  Documentation for MoneyWatcher.
+  Entry point of the app. Handles the start of the Supervisor and routing.
   """
 
   use Application

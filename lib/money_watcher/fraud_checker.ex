@@ -10,24 +10,29 @@ defmodule MoneyWatcher.FraudChecker do
   @log_filename Application.get_env(:money_watcher, :log_filename)
 
   @doc """
-  Start the agent for a given account
+  Starts the agent for a given account
   """
-
-  def start_link([], initial_state) do
+  def start_link(opts \\ [], initial_state) do
     GenServer.start_link(__MODULE__, initial_state)
   end
 
   @doc """
-  Retrieve the current account debit
+  Adds a transaction to the state
   """
   def add(fraud_checker, transaction) do
     GenServer.cast(fraud_checker, {:add, transaction})
   end
 
+  @doc """
+  Retrieves all transactions in the state
+  """
   def get(fraud_checker) do
     GenServer.call(fraud_checker, :get)
   end
 
+  @doc """
+  Checks if the account is fraudulent
+  """
   def check_debit(fraud_checker) do
     GenServer.cast(fraud_checker, :check_debit)
   end
@@ -47,10 +52,6 @@ defmodule MoneyWatcher.FraudChecker do
     {:noreply, {account_id, transactions}}
   end
 
-  @doc """
-  calculates the debit on the last 20 minutes and logs a warning into a file if the account
-  is considered fraudulent
-  """
   def handle_cast(:check_debit, {account_id, transactions}) do
     min_time = :os.system_time(:milli_seconds) - @fraud_period_in_milli_seconds
     # Keep only relevant transactions for fraud check

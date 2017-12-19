@@ -23,3 +23,7 @@ erl_crash.dump
 *.swp
 *.swo
 *.swe
+
+# log file
+money_watcher_log.txt
+money_watcher_log_test.txt

@@ -48,7 +48,8 @@ defmodule MoneyWatcher.FraudChecker do
   end
 
   @doc """
-  Operate a debit on the current account
+  calculates the debit on the last 20 minutes and logs a warning into a file if the account
+  is considered fraudulent
   """
   def handle_cast(:check_debit, {account_id, transactions} = state) do
     min_time = :os.system_time(:milli_seconds) - @fraud_period_in_milli_seconds

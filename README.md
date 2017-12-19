@@ -25,4 +25,4 @@ amount : Strictly positive integer (€ cents)
 ```
 - When the debit for an account goes over 10k € (1M € cents) in the past 20min, a warning is logged in `money_watcher_log.txt`.
 
-- To launch tests `mix test`. Logs folder is `money_watcher_log_test.txt`.
+- To launch tests `mix test`. Logs file is `money_watcher_log_test.txt`.

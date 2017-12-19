@@ -41,4 +41,8 @@ defmodule MoneyWatcher.FraudCheckerTest do
     assert counter == 1
     :ok = File.rm(@log_filename)
   end
+
+  test "are temporary workers" do
+    assert Supervisor.child_spec(FraudChecker, []).restart == :temporary
+  end
 end

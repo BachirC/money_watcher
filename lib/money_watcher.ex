@@ -3,6 +3,15 @@ defmodule MoneyWatcher do
   Documentation for MoneyWatcher.
   """
 
+  use Application
+
+  alias MoneyWatcher.FraudChecker
+  import Plug.Conn
+
+  def start(_type, _args) do
+    MoneyWatcher.Supervisor.start_link(name: MoneyWatcher.Supervisor)
+  end
+
   def init(default_options) do
     IO.puts "Starting MoneyWatcher..."
     default_options

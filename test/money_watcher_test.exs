@@ -17,7 +17,14 @@ defmodule MoneyWatcherTest do
   end
 
   test "with invalid amount" do
-    conn = conn(:post, "/accounts/INVALID_IBAN/debit", %{"amount" => "-1000"})
+    conn = conn(:post, "/accounts/DE89370400440532013000/debit", %{"amount" => "-1000"})
+    conn = MoneyWatcher.call(conn, [])
+    assert conn.state == :sent
+    assert conn.status == 200
+  end
+
+  test "with no amount" do
+    conn = conn(:post, "/accounts/DE89370400440532013000/debit")
     conn = MoneyWatcher.call(conn, [])
     assert conn.state == :sent
     assert conn.status == 200

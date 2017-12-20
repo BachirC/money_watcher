@@ -16,12 +16,14 @@ Starting MoneyWatcher...
 {:ok, #PID<0.213.0>}
 iex(2)>
 ```
-- Request
+- Use example
 
 ```http
-POST localhost:4000/accounts/:account_id/debit?amount=<amount>
-account_id : IBAN format (valid one DE89370400440532013000)
+curl -X POST http://localhost:4000/accounts/DE89370400440532013000/debit?amount=1000000
+account_id : IBAN format
 amount : Strictly positive integer (€ cents)
+
+cat money_watcher_log.txt
 ```
 - When the debit for an account goes over 10k € (1M € cents) in the past 20min, a warning is logged in `money_watcher_log.txt`.
 

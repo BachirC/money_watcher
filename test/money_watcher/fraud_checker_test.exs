@@ -15,32 +15,58 @@ defmodule MoneyWatcher.FraudCheckerTest do
   test "stores transaction", %{fraud_checker: fraud_checker} do
     assert FraudChecker.get(fraud_checker) == []
 
-    timestamp = :os.system_time(:milli_seconds)
-    FraudChecker.add(fraud_checker, {10, timestamp})
-    assert FraudChecker.get(fraud_checker) == [{10, timestamp}]
+    transac = {10, :os.system_time(:milli_seconds)}
+    FraudChecker.add(fraud_checker, transac)
+    assert FraudChecker.get(fraud_checker) == [transac]
   end
 
-  test "calculates debit on fraud period", %{fraud_checker: fraud_checker} do
+  test "considers only transactions in fraud period when calculating debit", %{fraud_checker: fraud_checker} do
     timestamp = :os.system_time(:milli_seconds)
 
-    FraudChecker.add(fraud_checker, {@fraud_debit * 2, timestamp - @fraud_period - 1_000})
-    FraudChecker.add(fraud_checker, {@fraud_debit / 2, timestamp - @fraud_period + 1_000})
-    FraudChecker.add(fraud_checker, {@fraud_debit / 2, timestamp})
+    transac1 = {@fraud_debit * 2, timestamp - @fraud_period - 1_000}
+    transac2 = {@fraud_debit / 2, timestamp - @fraud_period + 1_000}
+    transac3 = {@fraud_debit / 2, timestamp}
 
-    expected = [
-      {@fraud_debit / 2, timestamp - @fraud_period + 1_000},
-      {@fraud_debit / 2, timestamp}
-    ]
+    expected = [transac3, transac2]
 
+    FraudChecker.add(fraud_checker, transac1)
+    FraudChecker.add(fraud_checker, transac2)
+    FraudChecker.add(fraud_checker, transac3)
     FraudChecker.check_debit(fraud_checker)
     {_, transactions} = :sys.get_state(fraud_checker)
-    assert transactions -- expected == []
+
+    assert expected == transactions
+  end
+
+  test "warns when fraud debit is reached", %{fraud_checker: fraud_checker} do
+    if File.exists?(@log_filename), do: File.rm(@log_filename)
+
+    transac = {@fraud_debit + 1, :os.system_time(:milli_seconds)}
+    FraudChecker.add(fraud_checker, transac)
+    FraudChecker.check_debit(fraud_checker)
+    # Wait for the processing
+    {_, _} = :sys.get_state(fraud_checker)
+
+    assert File.exists?(@log_filename) == true
+
     counter = @log_filename
               |> File.stream!()
               |> Enum.count()
+    :ok = File.rm(@log_filename)
 
     assert counter == 1
-    :ok = File.rm(@log_filename)
+  end
+
+  test "doesn't warn when fraud debit not reached", %{fraud_checker: fraud_checker} do
+    if File.exists?(@log_filename), do: File.rm(@log_filename)
+
+    transac = {@fraud_debit - 1, :os.system_time(:milli_seconds)}
+    FraudChecker.add(fraud_checker, transac)
+    FraudChecker.check_debit(fraud_checker)
+    # Wait for the processing
+    {_, _} = :sys.get_state(fraud_checker)
+
+    assert File.exists?(@log_filename) == false
   end
 
   test "are temporary workers" do
